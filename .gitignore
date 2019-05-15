@@ -1,0 +1,22 @@
+# Ignore all
+*
+
+# Unignore all dirs
+!*/
+
+# Unignore self and README
+!*.gitignore
+!README.md
+
+# Unignore Python files
+!*.py
+
+# Unignore players database
+!player_types.txt
+
+# Ignore PyCharm files
+.idea/
+__pycache__/
+
+# Ignore virtual enviroments
+venv/
