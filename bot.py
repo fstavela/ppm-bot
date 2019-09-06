@@ -2,6 +2,18 @@ from bs4 import BeautifulSoup
 import requests
 
 
+def content_length(data):
+    length = 1
+    for key in data.keys():
+        length += len(str(key))
+        length += len(str(data[key]))
+        if len(str(data[key])) != 0:
+            length += 2
+        else:
+            length += 1
+    return length
+
+
 class Bot:
     def __init__(self):
         self.headers = {
@@ -10,7 +22,7 @@ class Bot:
             "Accept-Language": "en-US,en,q=0.5",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0"
+            "User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0"
         }
         self.players = []
         self.session = requests.session()
@@ -26,7 +38,7 @@ class Bot:
 
         # Add headers
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
-        self.headers["Content-Length"] = str(self.content_length(data))
+        self.headers["Content-Length"] = str(content_length(data))
         self.update_headers()
 
         # Send login data
@@ -112,7 +124,7 @@ class Bot:
 
         # Add headers
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
-        self.headers["Content-Length"] = str(self.content_length(data))
+        self.headers["Content-Length"] = str(content_length(data))
         self.update_headers()
 
         # Send request
@@ -123,17 +135,6 @@ class Bot:
             self.update_headers()
             return True
         return False
-
-    def content_length(self, data):
-        length = 1
-        for key in data.keys():
-            length += len(str(key))
-            length += len(str(data[key]))
-            if len(str(data[key])) != 0:
-                length += 2
-            else:
-                length += 1
-        return length
 
     def update_headers(self):
         # Add "Cookie" value to headers
