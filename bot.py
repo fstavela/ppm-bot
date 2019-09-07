@@ -4,10 +4,10 @@ import requests
 
 def content_length(data):
     length = 1
-    for key in data.keys():
+    for key, value in data.items():
         length += len(str(key))
-        length += len(str(data[key]))
-        if len(str(data[key])) != 0:
+        length += len(str(value))
+        if len(str(value)) != 0:
             length += 2
         else:
             length += 1
@@ -39,6 +39,7 @@ class Bot:
         # Add headers
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
         self.headers["Content-Length"] = str(content_length(data))
+        print(content_length(data))
         self.update_headers()
 
         # Send login request
