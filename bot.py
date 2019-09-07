@@ -41,19 +41,18 @@ class Bot:
         self.headers["Content-Length"] = str(content_length(data))
         self.update_headers()
 
-        # Send login data
+        # Send login request
         response = self.session.post("https://www.powerplaymanager.com/action/action_ams_user_login.php", data=data)
-        if response.status_code == 200 and response.text.find("Neplatné heslo alebo neexistujúci uživateľ") == -1:
-            self.headers.pop("Content-Length")
-            self.headers.pop("Content-Type")
-            self.update_headers()
 
-            # Redirect to home page
-            response = self.session.get("https://ppm.powerplaymanager.com/sk/domov.html")
-            if response.status_code == 200:
-                self.update_headers()
-                return True
-        return False
+        # Remove headers
+        self.headers.pop("Content-Length")
+        self.headers.pop("Content-Type")
+        self.update_headers()
+
+        # Check if login was successful
+        if response.status_code != 200 or len(response.history) != 1:
+            return False
+        return True
 
     def logout(self):
         response = self.session.get("https://www.powerplaymanager.com/action/action_ams_user_logout.php?lng=sk")
