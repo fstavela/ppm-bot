@@ -43,28 +43,44 @@ def set_type(bot):
     bot.set_player_type(player, p_type)
 
 
-bot = Bot()
-run = False
+logged = False
+hockey_bot = Bot()
 
-username = input("Username: ")
-password = input("Password: ")
-
-if login(bot, username, password):
-    run = True
-    time.sleep(random.randint(4000, 6000) / 1000)
-    find_players(bot)
-    time.sleep(random.randint(4000, 6000) / 1000)
-
-while run:
+while True:
     action = input("Command: ")
-    if action.lower() == "train":
-        train(bot)
-        time.sleep(random.randint(4000, 6000) / 1000)
-    if action.lower() == "settype":
-        set_type(bot)
-    if action.lower() == "players":
-        find_players(bot)
-        time.sleep(random.randint(4000, 6000) / 1000)
-    if action.lower() == "logout":
-        logout(bot)
-        run = False
+    if action.lower() == "login":
+        if not logged:
+            username = input("Username: ")
+            password = input("Password: ")
+            if login(hockey_bot, username, password):
+                logged = True
+            time.sleep(random.randint(4000, 6000) / 1000)
+        else:
+            print("You are already logged in")
+    elif action.lower() == "train":
+        if logged:
+            train(hockey_bot)
+            time.sleep(random.randint(4000, 6000) / 1000)
+        else:
+            print("You are not logged in")
+    elif action.lower() == "settype":
+        set_type(hockey_bot)
+    elif action.lower() == "players":
+        if logged:
+            find_players(hockey_bot)
+            time.sleep(random.randint(4000, 6000) / 1000)
+        else:
+            print("You are not logged in")
+    elif action.lower() == "logout":
+        if logged:
+            logout(hockey_bot)
+            logged = False
+        else:
+            print("You are not logged in")
+    elif action.lower() == "exit":
+        if logged:
+            logout(hockey_bot)
+            logged = False
+        exit()
+    else:
+        print("Unknown command:", action)
