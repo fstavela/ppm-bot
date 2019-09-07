@@ -39,7 +39,6 @@ class Bot:
         # Add headers
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
         self.headers["Content-Length"] = str(content_length(data))
-        print(content_length(data))
         self.update_headers()
 
         # Send login request
