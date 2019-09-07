@@ -1,5 +1,6 @@
-from bot_classes import Bot
-import time, random
+from bot import Bot
+import time
+import random
 
 
 def login(bot, username, password):
