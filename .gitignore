@@ -11,6 +11,9 @@
 # Unignore Python files
 !*.py
 
+# Unignore requirements
+!requirements.txt
+
 # Ignore PyCharm and temporary files
 .idea/
 __pycache__/
