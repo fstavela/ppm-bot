@@ -100,7 +100,11 @@ class Bot:
         file.close()
 
     def find_player_types(self):
-        file = open("player_types.txt", "r")
+        try:
+            file = open("player_types.txt", "r")
+        except FileNotFoundError:
+            open("player_types.txt", "w").close()
+            file = open("player_types.txt", "r")
         for line in file:
             line = line.strip().split()
             player = self.get_player(line[0])
