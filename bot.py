@@ -117,6 +117,9 @@ class Bot:
                 return player
 
     def train_players(self, ratios):
+        # Update players
+        self.find_players()
+
         # Get data for training
         data = {}
         for player in self.players:
