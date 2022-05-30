@@ -50,15 +50,11 @@ class Bot:
         self.update_headers()
 
         # Check if login was successful
-        if response.status_code != 200 or len(response.history) != 1:
-            return False
-        return True
+        return response.status_code == 200 and len(response.history) == 1
 
     def logout(self):
         response = self.session.get("https://www.powerplaymanager.com/action/action_ams_user_logout.php?lng=sk")
-        if response.status_code == 200:
-            return True
-        return False
+        return response.status_code == 200
 
     def find_players(self):
         self.players = []
