@@ -1,14 +1,25 @@
 import logging
-from typing import Iterable
+import os
 
 from yaml import safe_load
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
-def load_config(conf_files: Iterable[str] = ("conf/config.default.yaml", "conf/config.local.yaml")):
+def get_conf_path():
+    path = os.path.abspath(__file__)
+    split_path = path.split(os.sep)
+    while split_path[-1] != "ppm-bot":
+        split_path.pop()
+    split_path.append("conf")
+    return os.sep.join(split_path)
+
+
+def load_config(*conf_files: str):
+    if not conf_files:
+        default_file_names = ("config.default.yaml", "config.local.yaml")
+        conf_files = (os.path.join(get_conf_path(), file) for file in default_file_names)
     config = {}
     for file_name in conf_files:
         try:
