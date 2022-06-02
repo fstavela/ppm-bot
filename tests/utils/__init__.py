@@ -1,10 +1,9 @@
-import os
+from pathlib import Path
 
 
 def get_data_path():
-    path = os.path.abspath(__file__)
-    split_path = path.split(os.sep)
-    while split_path[-1] != "tests":
-        split_path.pop()
-    split_path.append("data")
-    return os.sep.join(split_path)
+    path = Path(__file__)
+    while path.name != "tests":
+        path = path.parent
+    path = path.joinpath("data")
+    return str(path)

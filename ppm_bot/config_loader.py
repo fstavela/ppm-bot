@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 
 from yaml import safe_load
 
@@ -8,16 +9,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_conf_path():
-    file_path = os.path.abspath(__file__)
-    split_path = file_path.split(os.sep)
-    while split_path[-1] != "ppm-bot":
-        split_path.pop()
-    split_path.append("conf")
-    conf_path = os.sep.join(split_path)
-    if os.path.isdir(conf_path):
-        logger.debug(f"Found conf directory: {conf_path}")
-        return conf_path
-    raise NotADirectoryError(f"{conf_path} directory not found")
+    path = Path(__file__)
+    while path.name != "ppm-bot":
+        path = path.parent
+    path = str(path.joinpath("conf"))
+
+    if os.path.isdir(path):
+        logger.debug(f"Found conf directory: {path}")
+        return path
+    raise NotADirectoryError(f"{path} directory not found")
 
 
 def load_config(*conf_files: str):

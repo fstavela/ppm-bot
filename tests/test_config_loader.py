@@ -8,6 +8,7 @@ from tests.utils import get_data_path
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 valid_config_1_path = os.path.join(get_data_path(), "conf", "valid_config_1.yaml")
 valid_config_2_path = os.path.join(get_data_path(), "conf", "valid_config_2.yaml")
