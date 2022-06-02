@@ -14,7 +14,10 @@ def load_config(conf_files: Iterable[str] = ("conf/config.default.yaml", "conf/c
         try:
             with open(file_name, "r") as file:
                 try:
-                    config = {**config, **safe_load(file)}
+                    loaded_conf = safe_load(file)
+                    if loaded_conf is None:
+                        loaded_conf = {}
+                    config = {**config, **loaded_conf}
                 except Exception as exc:
                     logger.error(f"Error while loading {file_name}")
                     raise exc

@@ -54,3 +54,11 @@ def test_config_loader_multiple_files():
 def test_config_loader_invalid_files():
     with pytest.raises(Exception):
         load_config([invalid_config_path])
+
+
+def test_config_loader_empty_file():
+    assert load_config([empty_config_path]) == {}
+
+
+def test_config_loader_multiple_files_with_empty():
+    assert load_config([valid_config_1_path, empty_config_path]) == valid_config_1
