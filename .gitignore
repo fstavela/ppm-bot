@@ -2,5 +2,15 @@
 .idea/
 __pycache__/
 
+# Pytest
+.pytest_cache/
+.coverage
+
 # Ignore virtual enviroments
 venv/
+
+# Local configuration
+*/config.local.yaml
+
+# Logs
+geckodriver.log

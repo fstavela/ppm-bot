@@ -1,6 +1,7 @@
-from bot import Bot
-import time
 import random
+import time
+
+from bot import Bot
 
 
 def login(bot, username, password):
@@ -28,7 +29,7 @@ def train(bot):
         "G": [100, 0, 0, 0, 50, 50, 0],
         "D": [0, 100, 0, 20, 50, 40, 50],
         "W": [0, 0, 100, 80, 0, 50, 50],
-        "C": [0, 0, 100, 80, 50, 50, 0]
+        "C": [0, 0, 100, 80, 50, 50, 0],
     }
     if bot.train_players(ratios):
         print("Training successfully set")

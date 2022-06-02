@@ -1,5 +1,5 @@
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
 
 def content_length(data):
@@ -22,7 +22,7 @@ class Bot:
             "Accept-Language": "en-US,en,q=0.5",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
-            "User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0"
+            "User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0",
         }
         self.players = []
         self.session = requests.session()
@@ -30,11 +30,7 @@ class Bot:
 
     def login(self, username, password):
         # Create data
-        data = {
-            "lng": "sk",
-            "username": username,
-            "password": password
-        }
+        data = {"lng": "sk", "username": username, "password": password}
 
         # Add headers
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -42,7 +38,10 @@ class Bot:
         self.update_headers()
 
         # Send login request
-        response = self.session.post("https://www.powerplaymanager.com/action/action_ams_user_login.php", data=data)
+        response = self.session.post(
+            "https://www.powerplaymanager.com/action/action_ams_user_login.php",
+            data=data,
+        )
 
         # Remove headers
         self.headers.pop("Content-Length")
