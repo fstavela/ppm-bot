@@ -3,6 +3,8 @@ import time
 
 from bot import Bot
 
+from ppm_bot.config_loader import load_config
+
 
 def login(bot, username, password):
     if bot.login(username, password):
@@ -44,6 +46,7 @@ def set_type(bot):
     bot.set_player_type(player, p_type)
 
 
+config = load_config()
 logged = False
 hockey_bot = Bot()
 

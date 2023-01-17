@@ -8,6 +8,7 @@ __pycache__/
 
 # Ignore virtual enviroments
 venv/
+.python-version
 
 # Local configuration
 config.local.yaml
