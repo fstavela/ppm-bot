@@ -1,5 +1,8 @@
+import csv
 import random
-import time
+from collections import OrderedDict
+from os.path import exists
+from time import sleep
 
 from bot import Bot
 
@@ -46,45 +49,82 @@ def set_type(bot):
     bot.set_player_type(player, p_type)
 
 
+def get_finances(bot):
+    finances = bot.get_finances()
+    for sport, finance in finances.items():
+        for finance_type in ("income", "payments"):
+            current_data = OrderedDict()
+
+            if not exists(f"finance_{sport}_{finance_type}.csv"):
+                new_file = open(f"finance_{sport}_{finance_type}.csv", "w")
+                new_file.close()
+
+            with open(f"finance_{sport}_{finance_type}.csv", "r", newline="") as rfile:
+                reader = csv.reader(rfile)
+                for row in reader:
+                    current_data[row[0]] = row[1:]
+
+            current_data[bot.yesterday.isoformat()] = finance[finance_type][bot.yesterday]
+            current_data[bot.today.isoformat()] = finance[finance_type][bot.today]
+
+            with open(f"finance_{sport}_{finance_type}.csv", "w", newline="") as wfile:
+                writer = csv.writer(wfile)
+                for date, data in current_data.items():
+                    writer.writerow([date] + data)
+
+
 config = load_config()
 logged = False
-hockey_bot = Bot()
+hockey_bot = Bot(config["lng"])
 
-while True:
-    action = input("Command: ")
-    if action.lower() == "login":
-        if not logged:
-            username = input("Username: ")
-            password = input("Password: ")
-            if login(hockey_bot, username, password):
-                logged = True
-            time.sleep(random.randint(4000, 6000) / 1000)
-        else:
-            print("You are already logged in")
-    elif action.lower() == "train":
-        if logged:
-            train(hockey_bot)
-            time.sleep(random.randint(4000, 6000) / 1000)
-        else:
-            print("You are not logged in")
-    elif action.lower() == "settype":
-        set_type(hockey_bot)
-    elif action.lower() == "players":
-        if logged:
-            find_players(hockey_bot)
-            time.sleep(random.randint(4000, 6000) / 1000)
-        else:
-            print("You are not logged in")
-    elif action.lower() == "logout":
-        if logged:
-            logout(hockey_bot)
-            logged = False
-        else:
-            print("You are not logged in")
-    elif action.lower() == "exit":
-        if logged:
-            logout(hockey_bot)
-            logged = False
-        exit()
-    else:
-        print("Unknown command:", action)
+login(hockey_bot, config["username"], config["password"])
+sleep(random.randint(4000, 6000) / 1000)
+get_finances(hockey_bot)
+sleep(random.randint(4000, 6000) / 1000)
+logout(hockey_bot)
+
+
+# while True:
+#     action = input("Command: ")
+#     if action.lower() == "login":
+#         if not logged:
+#             username = input("Username: ")
+#             password = input("Password: ")
+#             if login(hockey_bot, username, password):
+#                 logged = True
+#             time.sleep(random.randint(4000, 6000) / 1000)
+#         else:
+#             print("You are already logged in")
+#     elif action.lower() == "train":
+#         if logged:
+#             train(hockey_bot)
+#             time.sleep(random.randint(4000, 6000) / 1000)
+#         else:
+#             print("You are not logged in")
+#     elif action.lower() == "settype":
+#         set_type(hockey_bot)
+#     elif action.lower() == "players":
+#         if logged:
+#             find_players(hockey_bot)
+#             time.sleep(random.randint(4000, 6000) / 1000)
+#         else:
+#             print("You are not logged in")
+#     elif action.lower() == "logout":
+#         if logged:
+#             logout(hockey_bot)
+#             logged = False
+#         else:
+#             print("You are not logged in")
+#     elif action.lower() == "exit":
+#         if logged:
+#             logout(hockey_bot)
+#             logged = False
+#         exit()
+#     elif action.lower() == "finance":
+#         if logged:
+#             scrape_finance(hockey_bot)
+#             time.sleep(random.randint(4000, 6000) / 1000)
+#         else:
+#             print("You are not logged in")
+#     else:
+#         print("Unknown command:", action)

@@ -1,5 +1,11 @@
+import random
+from datetime import date
+from datetime import timedelta
+from time import sleep
+
 import requests
 from bs4 import BeautifulSoup
+from requests import Response
 
 
 def content_length(data):
@@ -15,7 +21,7 @@ def content_length(data):
 
 
 class Bot:
-    def __init__(self):
+    def __init__(self, lng="sk"):
         self.headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
             "Accept-Encoding": "gzip, deflate, br",
@@ -27,10 +33,24 @@ class Bot:
         self.players = []
         self.session = requests.session()
         self.update_headers()
+        self.lng = lng
+        self.team_links = {}
+        self.today = date.today()
+        self.yesterday = date.today() - timedelta(days=1)
+
+    def _get_team_links(self, login_page: Response):
+        sports = ("hockey", "soccer", "handball", "basketball")
+        soup = BeautifulSoup(login_page.content, "lxml")
+        for sport in sports:
+            div = soup.find("div", class_=f"{sport}_team_info")
+            a = div.find("a", class_="sport_team_gate_link")
+            if a is None:
+                continue
+            self.team_links[sport] = a["href"]
 
     def login(self, username, password):
         # Create data
-        data = {"lng": "sk", "username": username, "password": password}
+        data = {"lng": self.lng, "username": username, "password": password}
 
         # Add headers
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -48,11 +68,16 @@ class Bot:
         self.headers.pop("Content-Type")
         self.update_headers()
 
+        # Find links to existing teams
+        self._get_team_links(response)
+
         # Check if login was successful
         return response.status_code == 200 and len(response.history) == 1
 
     def logout(self):
-        response = self.session.get("https://www.powerplaymanager.com/action/action_ams_user_logout.php?lng=sk")
+        response = self.session.get(
+            f"https://www.powerplaymanager.com/action/action_ams_user_logout.php?lng={self.lng}"
+        )
         return response.status_code == 200
 
     def find_players(self):
@@ -136,6 +161,36 @@ class Bot:
             self.update_headers()
             return True
         return False
+
+    def _scrape_table(self, finance_soup, table_id):
+        print(f"Scraping finances for {table_id}")
+        finance = {self.today: [], self.yesterday: []}
+        table = finance_soup.find("table", id=table_id)
+        for row in table.find("tbody").select("tr"):
+            columns = row.findAll("td")
+            finance[self.today].append(columns[1].text)
+            finance[self.yesterday].append(columns[2].text)
+        return finance
+
+    def _scrape_finance(self, link):
+        response = self.session.get(link)
+        sleep(random.randint(4000, 6000) / 1000)
+        soup = BeautifulSoup(response.content, "lxml")
+        finance = {"income": self._scrape_table(soup, "table-p"), "payments": self._scrape_table(soup, "table-v")}
+        return finance
+
+    def get_finances(self):
+        print("Getting finances")
+        finances = {}
+        for team, link in self.team_links.items():
+            print(f"Getting finances for {team}")
+            response = self.session.get(link)
+            sleep(random.randint(4000, 6000) / 1000)
+            soup = BeautifulSoup(response.content, "lxml")
+            div = soup.find("li", id=f"sub_menu_ua_{team}_finance")
+            finance_link = div.find("a")["href"]
+            finances[team] = self._scrape_finance(finance_link)
+        return finances
 
     def update_headers(self):
         # Add "Cookie" value to headers
