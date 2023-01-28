@@ -163,7 +163,6 @@ class Bot:
         return False
 
     def _scrape_table(self, finance_soup, table_id):
-        print(f"Scraping finances for {table_id}")
         finance = {self.today: [], self.yesterday: []}
         table = finance_soup.find("table", id=table_id)
         for row in table.find("tbody").select("tr"):
@@ -172,11 +171,18 @@ class Bot:
             finance[self.yesterday].append(columns[2].text)
         return finance
 
+    def _scrape_balance(self, finance_soup):
+        tables = finance_soup.find_all("table", class_="table")
+        columns = tables[-1].find("tr").find_all("td")
+        balance = {"today": columns[1].text, "yesterday": columns[2].text, "total": columns[5].text}
+        return balance
+
     def _scrape_finance(self, link):
         response = self.session.get(link)
         sleep(random.randint(4000, 6000) / 1000)
         soup = BeautifulSoup(response.content, "lxml")
         finance = {"income": self._scrape_table(soup, "table-p"), "payments": self._scrape_table(soup, "table-v")}
+        finance["balance"] = self._scrape_balance(soup)
         return finance
 
     def get_finances(self):
@@ -187,7 +193,10 @@ class Bot:
             response = self.session.get(link)
             sleep(random.randint(4000, 6000) / 1000)
             soup = BeautifulSoup(response.content, "lxml")
-            div = soup.find("li", id=f"sub_menu_ua_{team}_finance")
+            if team in ("handball", "basketball"):
+                div = soup.find("li", id=f"sub_menu_{team}_finance")
+            else:
+                div = soup.find("li", id=f"sub_menu_ua_{team}_finance")
             finance_link = div.find("a")["href"]
             finances[team] = self._scrape_finance(finance_link)
         return finances

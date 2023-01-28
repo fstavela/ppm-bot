@@ -5,8 +5,7 @@ from os.path import exists
 from time import sleep
 
 from bot import Bot
-
-from ppm_bot.config_loader import load_config
+from config_loader import load_config
 
 
 def login(bot, username, password):
@@ -52,25 +51,28 @@ def set_type(bot):
 def get_finances(bot):
     finances = bot.get_finances()
     for sport, finance in finances.items():
-        for finance_type in ("income", "payments"):
-            current_data = OrderedDict()
+        current_data = OrderedDict()
+        for date in (bot.today, bot.yesterday):
+            current_data[date.isoformat()] = finance["income"][date] + finance["payments"][date]
+        current_data[bot.today.isoformat()] += [finance["balance"]["today"], finance["balance"]["total"]]
+        current_data[bot.yesterday.isoformat()] += [finance["balance"]["yesterday"]]
 
-            if not exists(f"finance_{sport}_{finance_type}.csv"):
-                new_file = open(f"finance_{sport}_{finance_type}.csv", "w")
-                new_file.close()
+        file_name = f"finance_{sport}.csv"
 
-            with open(f"finance_{sport}_{finance_type}.csv", "r", newline="") as rfile:
-                reader = csv.reader(rfile)
-                for row in reader:
+        if not exists(file_name):
+            new_file = open(file_name, "w")
+            new_file.close()
+
+        with open(file_name, "r", newline="") as rfile:
+            reader = csv.reader(rfile)
+            for row in reader:
+                if row[0] not in current_data:
                     current_data[row[0]] = row[1:]
 
-            current_data[bot.yesterday.isoformat()] = finance[finance_type][bot.yesterday]
-            current_data[bot.today.isoformat()] = finance[finance_type][bot.today]
-
-            with open(f"finance_{sport}_{finance_type}.csv", "w", newline="") as wfile:
-                writer = csv.writer(wfile)
-                for date, data in current_data.items():
-                    writer.writerow([date] + data)
+        with open(file_name, "w", newline="") as wfile:
+            writer = csv.writer(wfile)
+            for date, data in current_data.items():
+                writer.writerow([date] + data)
 
 
 config = load_config()
